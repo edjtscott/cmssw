@@ -30,12 +30,12 @@
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 
 class HGCalClusterTestProducer : public edm::stream::EDProducer<> {
- public:    
+ public:
   HGCalClusterTestProducer(const edm::ParameterSet&);
   ~HGCalClusterTestProducer() { }
-  
+
   virtual void produce(edm::Event&, const edm::EventSetup&);
-  
+
  private:
 
   edm::EDGetTokenT<HGCRecHitCollection> hits_ee_token;
@@ -62,7 +62,7 @@ HGCalClusterTestProducer::HGCalClusterTestProducer(const edm::ParameterSet &ps) 
   double ecut = ps.getParameter<double>("ecut");
   double delta_c = ps.getParameter<double>("deltac");
   double kappa = ps.getParameter<double>("kappa");
-  
+
   if(detector=="both"){
     hits_ee_token = consumes<HGCRecHitCollection>(edm::InputTag("HGCalRecHit:HGCEERecHits"));
     hits_ef_token = consumes<HGCRecHitCollection>(edm::InputTag("HGCalRecHit:HGCHEFRecHits"));
@@ -92,7 +92,7 @@ HGCalClusterTestProducer::HGCalClusterTestProducer(const edm::ParameterSet &ps) 
   produces<std::vector<reco::BasicCluster> >("sharing");
 }
 
-void HGCalClusterTestProducer::produce(edm::Event& evt, 
+void HGCalClusterTestProducer::produce(edm::Event& evt,
 				       const edm::EventSetup& es) {
   edm::ESHandle<HGCalGeometry> ee_geom;
   es.get<IdealGeometryRecord>().get("HGCalEESensitive",ee_geom);
@@ -107,32 +107,33 @@ void HGCalClusterTestProducer::produce(edm::Event& evt,
   evt.getByToken(genParticlesToken, genParticlesH);
   const auto& genParticles = *genParticlesH;
 
-  std::unique_ptr<std::vector<reco::BasicCluster> > clusters( new std::vector<reco::BasicCluster> ), 
+  std::unique_ptr<std::vector<reco::BasicCluster> > clusters( new std::vector<reco::BasicCluster> ),
     clusters_sharing( new std::vector<reco::BasicCluster> );
-  
+
   algo->reset();
   switch(algoId){
   case reco::CaloCluster::hgcal_em:
     evt.getByToken(hits_ee_token,ee_hits);
     algo->setGeometry(ee_geom.product());
-    algo->makeClusters(*ee_hits);
+    algo->populate(*ee_hits);
     break;
   case  reco::CaloCluster::hgcal_had:
     evt.getByToken(hits_ef_token,ef_hits);
     algo->setGeometry(ef_geom.product());
-    algo->makeClusters(*ef_hits);
+    algo->populate(*ef_hits);
     break;
   case reco::CaloCluster::hgcal_mixed:
     evt.getByToken(hits_ee_token,ee_hits);
     algo->setGeometry(ee_geom.product());
-    algo->makeClusters(*ee_hits);
+    algo->populate(*ee_hits);
     evt.getByToken(hits_ef_token,ef_hits);
     algo->setGeometry(ef_geom.product());
-    algo->makeClusters(*ef_hits);
+    algo->populate(*ef_hits);
     break;
   default:
     break;
   }
+  algo->makeClusters();
   *clusters = algo->getClusters(false);
   if(doSharing)
     *clusters_sharing = algo->getClusters(true);
@@ -140,7 +141,7 @@ void HGCalClusterTestProducer::produce(edm::Event& evt,
   std::cout << "Density based cluster size: " << clusters->size() << std::endl;
   if(doSharing)
     std::cout << "Sharing clusters size     : " << clusters_sharing->size() << std::endl;
-  
+
   edm::Handle<std::vector<reco::PFCluster> > hydra[2];
   std::vector<std::string> names;
   names.push_back(std::string("gen"));

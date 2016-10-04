@@ -16,6 +16,12 @@ namespace {
   constexpr char hgcalfh_sens[] = "HGCalHESiliconSensitive";
 
   constexpr std::float_t idx_to_thickness = std::float_t(100.0);
+  // define layer offsets
+  // https://github.com/cms-sw/cmssw/blob/CMSSW_8_1_X/DataFormats/ForwardDetId/interface/ForwardSubdetector.h
+  // HGCEE=3, HGCHEF=4, HGCHEB=5
+  const unsigned int hefOffset = 28; // number of EE layers
+  const unsigned int hebOffset = hefOffset + 12; // number of EE+FH layers
+
 
   inline void check_ddd(const HGCalDDDConstants* ddd) {
     if( nullptr == ddd ) {
@@ -67,6 +73,32 @@ std::float_t RecHitTools::getRadiusToSide(const DetId& id) const {
   const HGCalDetId hid(id);
   std::float_t size = ddd->cellSizeHex(hid.waferType());
   return size;
+}
+
+unsigned int RecHitTools::getLayer(const DetId& id) const {
+  auto ddd = id.subdetId() == HGCEE ? ddd_[0] : ddd_[1];
+  check_ddd(ddd);
+  const HGCalDetId hid(id);
+  unsigned int layer = hid.layer();
+  return layer;
+}
+
+unsigned int RecHitTools::getLayerWithOffset(const DetId& id) const {
+  auto ddd = id.subdetId() == HGCEE ? ddd_[0] : ddd_[1];
+  check_ddd(ddd);
+  const HGCalDetId hid(id);
+  unsigned int layer = hid.layer();
+  unsigned int offset = 0;
+  switch(id.subdetId()) {
+      case HGCHEF:
+        offset += hefOffset;
+        break;
+      case HGCHEB:
+        offset += hebOffset;
+        break;
+  }
+  layer += offset;
+  return layer;
 }
 
 unsigned int RecHitTools::getWafer(const DetId& id) const {

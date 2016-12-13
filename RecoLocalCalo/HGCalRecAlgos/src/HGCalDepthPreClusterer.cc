@@ -21,6 +21,11 @@ namespace {
              const edm::Ptr<reco::BasicCluster> &b) {
     return reco::deltaR(*a,*b);
   }
+
+  float distReal(const edm::Ptr<reco::BasicCluster> &a, 
+             const edm::Ptr<reco::BasicCluster> &b) {
+    return sqrt((a->x()-b->x())*(a->x()-b->x()) + (a->y()-b->y())*(a->y()-b->y()));
+  }
 }
 
 std::vector<reco::HGCalMultiCluster> HGCalDepthPreClusterer::makePreClusters(const reco::HGCalMultiCluster::ClusterCollection &thecls) const {
@@ -37,7 +42,10 @@ std::vector<reco::HGCalMultiCluster> HGCalDepthPreClusterer::makePreClusters(con
       ++used;
       for(unsigned int j = i+1; j < es.size(); ++j) {
 	if(vused[j]==0) {
-	  if( dist(thecls[es[i]],thecls[es[j]])<radius && int(thecls[es[i]]->z()*vused[i])>0 ) {
+          float distanceCheck = 9999.;
+          if( realSpaceCone ) distanceCheck = distReal(thecls[es[i]],thecls[es[j]]);
+          else distanceCheck = dist(thecls[es[i]],thecls[es[j]]);
+	  if( distanceCheck<radius && int(thecls[es[i]]->z()*vused[i])>0 ) {
 	    temp.push_back(thecls[es[j]]);
 	    vused[j]=vused[i];
 	    ++used;

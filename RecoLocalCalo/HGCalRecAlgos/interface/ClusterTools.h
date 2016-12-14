@@ -38,6 +38,8 @@ namespace hgcal {
     
     double getMultiClusterEnergy(const reco::HGCalMultiCluster&) const;
 
+    RecHitTools getRecHitTools() const;
+
   private:
     RecHitTools rhtools_;
     const edm::EDGetTokenT<HGCRecHitCollection> eetok, fhtok, bhtok;

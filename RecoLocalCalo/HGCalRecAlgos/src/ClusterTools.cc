@@ -105,3 +105,7 @@ double ClusterTools::getMultiClusterEnergy(const reco::HGCalMultiCluster& clu) c
   }
   return acc;
 }
+
+RecHitTools ClusterTools::getRecHitTools() const {
+  return rhtools_;
+}

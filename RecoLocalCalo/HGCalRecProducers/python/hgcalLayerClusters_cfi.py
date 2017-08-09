@@ -28,5 +28,6 @@ hgcalLayerClusters =  cms.EDProducer(
     fcPerMip = cms.vdouble(HGCalUncalibRecHit.HGCEEConfig.fCPerMIP),
     fcPerEle = cms.double(fC_per_ele),
     nonAgedNoises = cms.vdouble(nonAgedNoises),
-    noiseMip = hgchebackDigitizer.digiCfg.noise_MIP
+    noiseMip = hgchebackDigitizer.digiCfg.noise_MIP,
+    logWeightZero = cms.double(-1.)
     )

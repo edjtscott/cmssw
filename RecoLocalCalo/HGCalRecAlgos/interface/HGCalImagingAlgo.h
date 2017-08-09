@@ -64,6 +64,7 @@ HGCalImagingAlgo(const std::vector<double>& vecDeltas_in, double kappa_in, doubl
                  double fcPerEle_in,
                  const std::vector<double>& nonAgedNoises_in,
                  double noiseMip_in,
+                 double logWeightZero_in,
                  VerbosityLevel the_verbosity = pERROR) :
         vecDeltas(vecDeltas_in), kappa(kappa_in),
         ecut(ecut_in),
@@ -77,6 +78,7 @@ HGCalImagingAlgo(const std::vector<double>& vecDeltas_in, double kappa_in, doubl
         fcPerEle(fcPerEle_in),
         nonAgedNoises(nonAgedNoises_in),
         noiseMip(noiseMip_in),
+        logWeightZero(logWeightZero_in),
         verbosity(the_verbosity),
         initialized(false),
         points(2*(maxlayer+1)),
@@ -97,6 +99,7 @@ HGCalImagingAlgo(const std::vector<double>& vecDeltas_in, double kappa_in, doubl
                  double fcPerEle_in,
                  const std::vector<double>& nonAgedNoises_in,
                  double noiseMip_in,
+                 double logWeightZero_in,
                  VerbosityLevel the_verbosity = pERROR) : vecDeltas(vecDeltas_in), kappa(kappa_in),
         ecut(ecut_in),
         cluster_offset(0),
@@ -109,6 +112,7 @@ HGCalImagingAlgo(const std::vector<double>& vecDeltas_in, double kappa_in, doubl
         fcPerEle(fcPerEle_in),
         nonAgedNoises(nonAgedNoises_in),
         noiseMip(noiseMip_in),
+        logWeightZero(logWeightZero_in),
         verbosity(the_verbosity),
         initialized(false),
         points(2*(maxlayer+1)),
@@ -201,6 +205,8 @@ std::vector<double> nonAgedNoises;
 double noiseMip;
 std::vector<std::vector<double> > thresholds;
 std::vector<std::vector<double> > v_sigmaNoise;
+// for optional log weighting
+double logWeightZero;
 
 // The verbosity level
 VerbosityLevel verbosity;

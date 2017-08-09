@@ -166,6 +166,8 @@ math::XYZPoint HGCalImagingAlgo::calculatePosition(std::vector<KDNode> &v){
   float x = 0.;
   float y = 0.;
   float z = 0.;
+  float x_logw = 0.;
+  float y_logw = 0.;
   unsigned int v_size = v.size();
   unsigned int maxEnergyIndex = 0;
   float maxEnergyValue = 0;
@@ -180,13 +182,32 @@ math::XYZPoint HGCalImagingAlgo::calculatePosition(std::vector<KDNode> &v){
       total_weight += v[i].data.weight;
       x += v[i].data.x*v[i].data.weight;
       y += v[i].data.y*v[i].data.weight;
-      z += v[i].data.z*v[i].data.weight;
+      z += v[i].data.z*v[i].data.weight; // all z values in a cluster should be identical anyway...
     }
     else {
       if (v[i].data.weight > maxEnergyValue) {
         maxEnergyValue = v[i].data.weight;
         maxEnergyIndex = i;
       }
+    }
+  }
+
+  // additional loop for logweighted x,y positions
+  // only performed if logWeightZero > 0 (and not a halo only cluster)
+  if(logWeightZero > 0. && !haloOnlyCluster) {
+    float total_logWeight = 0.;
+    for (unsigned int i = 0; i < v_size; i++){
+      if(!v[i].data.isHalo && v[i].data.weight>0. && total_weight>0.) {
+        float logWeight = logWeightZero + log(v[i].data.weight/total_weight);
+        total_logWeight += logWeight;
+        x_logw += v[i].data.x*logWeight;
+        y_logw += v[i].data.y*logWeight;
+      }
+    }
+    if(total_weight>0. && total_logWeight>0.) {
+      return math::XYZPoint( x_logw/total_logWeight,
+			 y_logw/total_logWeight,
+			 z/total_weight );
     }
   }
 

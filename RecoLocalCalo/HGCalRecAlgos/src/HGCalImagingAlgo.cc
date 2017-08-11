@@ -199,9 +199,11 @@ math::XYZPoint HGCalImagingAlgo::calculatePosition(std::vector<KDNode> &v){
     for (unsigned int i = 0; i < v_size; i++){
       if(!v[i].data.isHalo && v[i].data.weight>0. && total_weight>0.) {
         float logWeight = logWeightZero + log(v[i].data.weight/total_weight);
-        total_logWeight += logWeight;
-        x_logw += v[i].data.x*logWeight;
-        y_logw += v[i].data.y*logWeight;
+        if( logWeight>0. ) {
+          total_logWeight += logWeight;
+          x_logw += v[i].data.x*logWeight;
+          y_logw += v[i].data.y*logWeight;
+        }
       }
     }
     if(total_weight>0. && total_logWeight>0.) {
